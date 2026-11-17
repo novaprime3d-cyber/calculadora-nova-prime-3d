@@ -39,15 +39,34 @@ async function enterFamily(){if(!cloud.auth){alert('Firebase indisponível. Veri
 async function leaveFamily(){if(cloud.auth){await cloud.auth.signOut();cloud.selectedId=null;go('family')}}
 async function confirmMember(user){try{const member=await cloud.db.collection('membros').doc(user.uid).get();return member.exists}catch(e){cloudMessage('Não foi possível verificar sua autorização: '+cloudError(e));return false}}
 function listenProjects(){if(cloud.unsub){cloud.unsub();cloud.unsub=null}if(!cloud.allowed)return;
- cloud.unsub=cloud.db.collection('projetos').onSnapshot(snapshot=>{cloud.items=snapshot.docs.map(d=>({...d.data(),_cloudId:d.id}));cloudStatus();if($('projects').classList.contains('active'))renderProjects();if($('reports').classList.contains('active'))renderReports();},e=>{cloudMessage('Erro de sincronização: '+cloudError(e))});}
+ cloud.unsub=cloud.db.collection('projetos').onSnapshot(snapshot=>{cloud.items=snapshot.docs.map(d=>({...fromCloudProject(d.data()),_cloudId:d.id}));cloudStatus();if($('projects').classList.contains('active'))renderProjects();if($('reports').classList.contains('active'))renderReports();},e=>{cloudMessage('Erro de sincronização: '+cloudError(e))});}
 function initFamily(){if(!window.firebase){cloudMessage('Firebase não carregou. A calculadora local continua funcionando.');return}
  try{if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);cloud.auth=firebase.auth();cloud.db=firebase.firestore();
  cloud.auth.onAuthStateChanged(async user=>{if(cloud.unsub){cloud.unsub();cloud.unsub=null}cloud.user=user;cloud.allowed=false;cloud.items=[];cloudStatus();if(user){cloud.allowed=await confirmMember(user);if(cloud.allowed)listenProjects();else cloudMessage('Conta sem autorização. Confirme o UID na coleção membros.')}if($('projects').classList.contains('active'))renderProjects();});
  }catch(e){cloudMessage('Falha ao iniciar Firebase: '+cloudError(e))}}
 window.addEventListener('online',()=>{cloud.online=true;cloudStatus()});window.addEventListener('offline',()=>{cloud.online=false;cloudStatus()});
+// O Firestore não aceita arrays dentro de arrays. Serializamos o detalhamento
+// e restauramos o formato original somente na interface, sem alterar os cálculos.
+function toCloudProject(value){
+ const copy=JSON.parse(JSON.stringify(value));
+ delete copy._cloudId;
+ if(Array.isArray(copy.lines)){
+   copy.linesJson=JSON.stringify(copy.lines);
+   delete copy.lines;
+ }
+ return copy;
+}
+function fromCloudProject(value){
+ const copy={...value};
+ if(typeof copy.linesJson==='string'){
+   try{copy.lines=JSON.parse(copy.linesJson)}catch(_){copy.lines=[]}
+   delete copy.linesJson;
+ }
+ return copy;
+}
 async function saveProject(){if(!last)return;
- const p=JSON.parse(JSON.stringify(last));delete p._cloudId;
- if(cloud.allowed&&cloud.user&&navigator.onLine){try{if(cloud.selectedId){await cloud.db.collection('projetos').doc(cloud.selectedId).set({...p,updatedBy:cloud.user.uid,updatedAt:new Date().toISOString()});alert('Projeto atualizado para toda a família!')}else{const doc=await cloud.db.collection('projetos').add({...p,createdBy:cloud.user.uid,updatedBy:cloud.user.uid,updatedAt:new Date().toISOString()});cloud.selectedId=doc.id;alert('Projeto salvo e compartilhado com a família!')}return}catch(e){alert('Não foi possível salvar na nuvem: '+cloudError(e)+'\nProjeto será salvo somente neste aparelho.')}}
+ const p=JSON.parse(JSON.stringify(last));delete p._cloudId;const cloudP=toCloudProject(p);
+ if(cloud.allowed&&cloud.user&&navigator.onLine){try{if(cloud.selectedId){await cloud.db.collection('projetos').doc(cloud.selectedId).set({...cloudP,updatedBy:cloud.user.uid,updatedAt:new Date().toISOString()});alert('Projeto atualizado para toda a família!')}else{const doc=await cloud.db.collection('projetos').add({...cloudP,createdBy:cloud.user.uid,updatedBy:cloud.user.uid,updatedAt:new Date().toISOString()});cloud.selectedId=doc.id;alert('Projeto salvo e compartilhado com a família!')}return}catch(e){alert('Não foi possível salvar na nuvem: '+cloudError(e)+'\nProjeto será salvo somente neste aparelho.')}}
  data.projects.unshift(p);persist();alert('Projeto salvo localmente. Para compartilhar, entre com sua conta e conecte-se à internet.');}
 function projectCard(p,isCloud,i){const c=document.createElement('div');c.className='listcard';const t=document.createElement('div');t.className='meta';const h=document.createElement('b');h.textContent=p.v?.name||'Projeto';const sub=document.createElement('p');const dt=p.date?new Date(p.date).toLocaleDateString('pt-BR'):'';sub.textContent=`${isCloud?'☁ Compartilhado':'▣ Neste aparelho'} · ${dt} · ${p.v?.qty||1} peça(s) · ${money(p.price||0)}/un`;t.append(h,sub);
  const o=document.createElement('div');o.style.display='flex';o.style.gap='5px';const open=document.createElement('button');open.className='tiny-btn';open.textContent='Abrir / Editar';open.onclick=()=>{last=JSON.parse(JSON.stringify(p));cloud.selectedId=isCloud?p._cloudId:null;renderResult();go('result')};o.append(open);
@@ -58,7 +77,7 @@ function renderProjects(){const filter=$('projectSearch').value.toLowerCase(),l=
  if(!count){const el=document.createElement('p');el.className='small';el.textContent='Nenhum projeto encontrado. Entre na conta familiar para ver os compartilhados.';l.append(el)}}
 function renderReports(){$('reportStats').textContent=`${cloud.allowed?cloud.items.length:0} projeto(s) compartilhado(s) e ${data.projects.length} projeto(s) neste aparelho. Abra qualquer projeto para emitir PDF.`}
 async function publishLocalProjects(){if(!cloud.allowed||!navigator.onLine){alert('Entre como familiar autorizado e conecte-se à internet.');return}if(!data.projects.length){alert('Não há projetos locais para compartilhar.');return}if(!confirm(`Compartilhar os ${data.projects.length} projetos que já estavam salvos neste aparelho?`))return;
- let ok=0;const remaining=[];for(const p of data.projects){try{const clean=JSON.parse(JSON.stringify(p));delete clean._cloudId;await cloud.db.collection('projetos').add({...clean,createdBy:cloud.user.uid,updatedBy:cloud.user.uid,updatedAt:new Date().toISOString()});ok++}catch(e){remaining.push(p)}}data.projects=remaining;persist();renderProjects();alert(`${ok} projeto(s) compartilhado(s). ${remaining.length} permanecem locais.`)}
+ let ok=0;const remaining=[];for(const p of data.projects){try{const clean=toCloudProject(p);await cloud.db.collection('projetos').add({...clean,createdBy:cloud.user.uid,updatedBy:cloud.user.uid,updatedAt:new Date().toISOString()});ok++}catch(e){remaining.push(p)}}data.projects=remaining;persist();renderProjects();alert(`${ok} projeto(s) compartilhado(s). ${remaining.length} permanecem locais.`)}
 function pdfRow(label,value){const tr=document.createElement('tr'),a=document.createElement('td'),b=document.createElement('td');a.textContent=label;b.textContent=value;tr.append(a,b);return tr}function generatePdf(){if(!last)return;$('pdfName').textContent=last.v.name;$('pdfMeta').textContent=`${new Date(last.date).toLocaleString('pt-BR')} · ${last.v.qty} peça(s)`;$('pdfPrice').textContent=money(last.price);$('pdfProfit').textContent=`Lucro estimado ${money(last.profit)}/un · markup ${last.v.margin}%`;$('pdfRows').replaceChildren(...last.lines.map(([k,v])=>pdfRow(k,money(v))),pdfRow('CUSTO TOTAL',money(last.total)),pdfRow('CUSTO POR PEÇA',money(last.unit)),pdfRow('PREÇO TOTAL DO LOTE',money(last.price*last.v.qty)));$('pdfData').replaceChildren(...[['Impressora',last.printer],['Filamento',last.material],['Peso total',`${last.v.weight} g`],['Tempo de impressão',`${last.v.time} h`],['Quantidade',String(last.v.qty)],['Taxa de falha',`${last.fixed.fail}%`],['Taxa marketplace',`${last.fixed.market}%`]].map(([a,b])=>pdfRow(a,b)));$('pdfNotes').textContent=last.v.notes||'';if(window.Android&&window.Android.printPdf){window.Android.printPdf()}else window.print()}
 populateSelectors();persist();window.addEventListener('load',initFamily);
 </script><script>if ('serviceWorker' in navigator && location.protocol==='https:') { window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{})); }</script></body></html>

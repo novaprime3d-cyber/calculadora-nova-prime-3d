@@ -1,14 +1,7 @@
-NOVA PRIME 3D — v5 FAMÍLIA (iPhone / GitHub Pages)
-
-Atualize os arquivos na RAIZ do mesmo repositório GitHub Pages: calculadora-nova-prime-3d.
-Substitua index.html, sw.js, manifest.webmanifest, logo.png, LEIA-ME.txt e mantenha a pasta icons/.
-No iPhone, abra a calculadora instalada; se vir a versão antiga, abra o endereço no Safari e recarregue.
-Entre pelo menu Família Online com os usuários já cadastrados no Firebase Authentication.
-As regras do Firestore devem estar publicadas como combinadas (coleções membros e projetos).
-Valores fixos, impressoras e materiais continuam locais, projetos salvos após login vão para o Firestore.
-Para enviar projetos antigos, clique Compartilhar projetos antigos deste aparelho.
-Para editar: Meus Projetos > Abrir / Editar > Salvar. Não há exclusão de projetos remotos.
-É necessária internet para login e sincronizar; cálculos e valores locais continuam disponíveis offline.
-Firebase JavaScript SDK é carregado do Google; o primeiro acesso requer internet.
-
-Correção 5.1: botão Família Online abre corretamente a tela familiar no iPhone. Atualizado cache offline v3.
+NOVA PRIME 3D — IPHONE v5.2
+Corrige erro Firestore: nested arrays are not supported ao salvar um projeto.
+No GitHub: Upload files -> envie arquivos EXTRAÍDOS, na raiz; Commit changes.
+Não remova o aplicativo nem apague dados do Safari; valores fixos continuam locais.
+No Safari: recarregue a página e teste um novo projeto em Família Online.
+O aplicativo salva linesJson no Firestore e recompõe o detalhamento para o PDF.
+Os projetos que falharam anteriormente podem ter sido salvos localmente; envie em Família Online > Compartilhar projetos antigos deste aparelho.
