@@ -10,3 +10,5 @@ Para enviar projetos antigos, clique Compartilhar projetos antigos deste aparelh
 Para editar: Meus Projetos > Abrir / Editar > Salvar. Não há exclusão de projetos remotos.
 É necessária internet para login e sincronizar; cálculos e valores locais continuam disponíveis offline.
 Firebase JavaScript SDK é carregado do Google; o primeiro acesso requer internet.
+
+Correção 5.1: botão Família Online abre corretamente a tela familiar no iPhone. Atualizado cache offline v3.
