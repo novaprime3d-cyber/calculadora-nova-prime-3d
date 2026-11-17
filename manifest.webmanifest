@@ -2,7 +2,7 @@
   "id": "./",
   "name": "Nova Prime 3D — Calculadora de Projetos",
   "short_name": "Nova Prime 3D",
-  "description": "Calculadora de projetos e custos de impressão 3D, offline e sem nuvem.",
+  "description": "Calculadora de projetos e custos de impressão 3D, com login familiar e projetos compartilhados.",
   "lang": "pt-BR",
   "start_url": "./index.html",
   "scope": "./",

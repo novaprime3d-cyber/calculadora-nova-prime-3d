@@ -1,21 +1,12 @@
-NOVA PRIME 3D — VERSÃO IPHONE (PWA)
+NOVA PRIME 3D — v5 FAMÍLIA (iPhone / GitHub Pages)
 
-Conteúdo: index.html, logo.png, manifest.webmanifest, sw.js e icons/.
-
-COMO PUBLICAR NO GITHUB PAGES (GRÁTIS)
-1. No GitHub, crie um repositório, por exemplo nova-prime-3d-iphone.
-2. Envie TODO o conteúdo desta pasta para a RAIZ do repositório (não apenas index.html).
-3. No repositório, abra Settings > Pages > Build and deployment.
-4. Selecione Deploy from a branch, branch main, pasta / (root), e salve.
-5. Aguarde a publicação; o GitHub mostrará o endereço HTTPS (ex.: https://SEU-USUARIO.github.io/nova-prime-3d-iphone/).
-6. Abra o endereço no SAFARI do iPhone. Use Compartilhar > Adicionar à Tela de Início > Adicionar.
-7. Abra o ícone instalado e configure seus valores fixos uma única vez.
-
-OBSERVAÇÕES IMPORTANTES
-• Não é necessário usar Android Studio, Xcode ou App Store para esta opção.
-• É necessária internet para a primeira abertura e instalação; após carregar e armazenar os arquivos, a calculadora funciona offline.
-• Dados e projetos ficam no armazenamento local de CADA iPhone (sem sincronização).
-• O PDF é gerado pelo botão do app e salvo via menu de impressão/compartilhamento do iOS.
-• Sem backup: apagar dados de sites, excluir o app ou redefinir o aparelho pode apagar os projetos e valores.
-• O GitHub Pages é uma HOSPEDAGEM PÚBLICA: o código fica acessível, mas os dados inseridos pelos familiares não são enviados ao GitHub.
-• Não use o endereço file:// para instalar: PWA e modo offline requerem HTTPS.
+Atualize os arquivos na RAIZ do mesmo repositório GitHub Pages: calculadora-nova-prime-3d.
+Substitua index.html, sw.js, manifest.webmanifest, logo.png, LEIA-ME.txt e mantenha a pasta icons/.
+No iPhone, abra a calculadora instalada; se vir a versão antiga, abra o endereço no Safari e recarregue.
+Entre pelo menu Família Online com os usuários já cadastrados no Firebase Authentication.
+As regras do Firestore devem estar publicadas como combinadas (coleções membros e projetos).
+Valores fixos, impressoras e materiais continuam locais, projetos salvos após login vão para o Firestore.
+Para enviar projetos antigos, clique Compartilhar projetos antigos deste aparelho.
+Para editar: Meus Projetos > Abrir / Editar > Salvar. Não há exclusão de projetos remotos.
+É necessária internet para login e sincronizar; cálculos e valores locais continuam disponíveis offline.
+Firebase JavaScript SDK é carregado do Google; o primeiro acesso requer internet.
